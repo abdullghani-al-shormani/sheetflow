@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- 1. Quick Dynamic List -->
+        <Button
+            android:id="@+id/btnQuickList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="1. Quick Dynamic List" />
+
+        <!-- 2. Action Menu Sheet -->
+        <Button
+            android:id="@+id/btnActionMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="2. Action Menu Sheet" />
+
+        <!-- 3. Custom Layout View -->
+        <Button
+            android:id="@+id/btnCustomLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="3. Custom Layout View" />
+
+        <!-- 4. Full Screen / Expanded Sheet -->
+        <Button
+            android:id="@+id/btnExpandedSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="4. Full Screen / Expanded Sheet" />
+
+        <!-- 5. Confirmation Alert Sheet -->
+        <Button
+            android:id="@+id/btnAlertSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="5. Confirmation Alert Sheet" />
+
+        <!-- 6. Multi-Select Sheet -->
+        <Button
+            android:id="@+id/btnMultiSelect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="6. Multi-Select Sheet" />
+
+        <!-- 7. Auto Keyboard Adjustment -->
+        <Button
+            android:id="@+id/btnKeyboardAdjust"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="7. Auto Keyboard Adjust" />
+
+        <!-- 8. Blur Background Effect -->
+        <Button
+            android:id="@+id/btnBlurBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="8. Blur Background Effect" />
+
+        <!-- 9. Persistent Peek Height Sheet -->
+        <Button
+            android:id="@+id/btnPeekHeightSheet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="9. Persistent / Peek Height Sheet" />
+
+        <!-- 10. Styled Sheet -->
+        <Button
+            android:id="@+id/btnSheetWithStyles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="10. Sheet With Custom Styles" />
+
+    </LinearLayout>
+</ScrollView>

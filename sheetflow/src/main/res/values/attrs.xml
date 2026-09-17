@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- تعريف السمات بشكل مستقل لربطها بالثيم بسهولة -->
+    <attr name="sheetTitleStyle" format="reference" />
+    <attr name="sheetMessageStyle" format="reference" />
+
+    <declare-styleable name="SheetFlowTheme">
+        <attr name="sheetTitleStyle" />
+        <attr name="sheetMessageStyle" />
+    </declare-styleable>
+</resources>

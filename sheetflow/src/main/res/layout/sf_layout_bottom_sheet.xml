@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="20dp">
+
+    <!-- Drag Handle Bar -->
+    <View
+        android:id="@+id/sf_drag_handle"
+        android:layout_width="45dp"
+        android:layout_height="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/sf_bg_drag_handle" />
+
+    <!-- Header Icon & Title -->
+    <LinearLayout
+        android:id="@+id/sf_header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/sf_img_icon"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="12dp" />
+
+        <!-- تعديل: ربط العنوان بالسمة الخاصة بالمكتبة -->
+        <TextView
+            android:id="@+id/sf_tv_title"
+            style="?attr/sheetTitleStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+    </LinearLayout>
+
+    <!-- Message -->
+    <!-- تعديل: ربط الرسالة بالسمة الخاصة بالمكتبة -->
+    <TextView
+        android:id="@+id/sf_tv_message"
+        style="?attr/sheetMessageStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone" />
+
+    <!-- Dynamic RecyclerView List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sf_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="true"
+        android:overScrollMode="never"
+        android:visibility="gone" />
+
+    <!-- Container for Custom View -->
+    <FrameLayout
+        android:id="@+id/sf_custom_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:id="@+id/sf_buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="end"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/sf_btn_negative"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/sf_btn_positive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- الثيم الافتراضي للمكتبة -->
+    <style name="SheetFlowDefaultTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="sheetTitleStyle">@style/SheetFlowDefaultTitleStyle</item>
+        <item name="sheetMessageStyle">@style/SheetFlowDefaultMessageStyle</item>
+    </style>
+
+    <style name="SheetFlowDefaultTitleStyle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#1F1F1F</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SheetFlowDefaultMessageStyle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#666666</item>
+    </style>
+</resources>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 1. الجزء الموسع (يظهر عند التوسع فقط) -->
+    <LinearLayout
+        android:id="@+id/layoutExpandedContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#F8F9FA"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="التفاصيل الممتدة"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- زر لإغلاق الجزء الموسع فقط (العودة للوضع الصغير) -->
+            <Button
+                android:id="@+id/btnCloseExpandedOnly"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="طي التفاصيل"
+                android:textColor="#D32F2F" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="هذا الجزء يحتوي على خيارات أو تفاصيل إضافية. يمكنك طيه والعودة للشريط الصغير فقط أو إغلاق الشيت بالكامل."
+            android:textColor="#555555" />
+    </LinearLayout>
+
+    <!-- 2. الجزء الثابت الصغير (الارتفاع الظاهر دائماً = 100dp) -->
+    <LinearLayout
+        android:id="@+id/layoutPersistentContent"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#FFFFFF"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="الشريط الثابت"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvToggleExpand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="اضغط هنا للتوسع / الطي"
+                android:textColor="#1976D2"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- زر لإغلاق الشيت بالكامل -->
+        <Button
+            android:id="@+id/btnCloseAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="إغلاق الكل" />
+    </LinearLayout>
+
+</LinearLayout>
