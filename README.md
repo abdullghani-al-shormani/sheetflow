@@ -45,8 +45,8 @@ dependencies {
 
 
 
-**Usage & Examples**
-# 1. Quick Dynamic List
+# Usage & Examples
+**1. Quick Dynamic List**
 Display a quick selection list with minimal setup:
 
 ```java
