@@ -240,8 +240,7 @@ SheetFlow.with(this, R.style.MyCustomAppSheetTheme)
 
 
 # 📄 License
-Plaintext
-Copyright 2026 Abdullghani Al-Shormani
+Copyright 2026 E.Abdullghani Al-Shormani
 
 Licensed under the MIT License; you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
