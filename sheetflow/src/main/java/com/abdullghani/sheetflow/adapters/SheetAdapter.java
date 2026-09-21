@@ -1,5 +1,6 @@
 package com.abdullghani.sheetflow.adapters;
 
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,11 +8,12 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.abdullghani.sheetflow.R;
-// استدعاء الـ Callback الموحد من مجلد callbacks
 import com.abdullghani.sheetflow.callbacks.OnMultiChoiceListener;
 import com.abdullghani.sheetflow.models.SheetItem;
 
@@ -24,17 +26,28 @@ public class SheetAdapter extends RecyclerView.Adapter<SheetAdapter.ViewHolder> 
         void onItemClick(int position, SheetItem item);
     }
 
-    // تم حذف Inner Interface OnMultiChoiceListener من هنا لمنع التعارض
-
     private final List<SheetItem> items;
     private final boolean isMultiSelect;
     private final List<Integer> selectedIndices = new ArrayList<>();
     private OnItemClickListener clickListener;
     private OnMultiChoiceListener multiChoiceListener;
 
+    @Nullable
+    private Integer iconColor; // ← لون الأيقونات
+
     public SheetAdapter(List<SheetItem> items, boolean isMultiSelect) {
         this.items = items;
         this.isMultiSelect = isMultiSelect;
+    }
+
+    public SheetAdapter(List<SheetItem> items, boolean isMultiSelect, @Nullable @ColorInt Integer iconColor) {
+        this.items = items;
+        this.isMultiSelect = isMultiSelect;
+        this.iconColor = iconColor;
+    }
+
+    public void setIconColor(@Nullable @ColorInt Integer iconColor) {
+        this.iconColor = iconColor;
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -60,6 +73,13 @@ public class SheetAdapter extends RecyclerView.Adapter<SheetAdapter.ViewHolder> 
         if (item.getIconRes() != 0) {
             holder.imgIcon.setImageResource(item.getIconRes());
             holder.imgIcon.setVisibility(View.VISIBLE);
+
+            // تطبيق لون الأيقونة
+            if (iconColor != null) {
+                holder.imgIcon.setImageTintList(ColorStateList.valueOf(iconColor));
+            } else {
+                holder.imgIcon.setImageTintList(null);
+            }
         } else {
             holder.imgIcon.setVisibility(View.GONE);
         }

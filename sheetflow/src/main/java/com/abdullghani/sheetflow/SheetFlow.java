@@ -1,52 +1,23 @@
 package com.abdullghani.sheetflow;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.Configuration;
-import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.FontRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
-import androidx.core.view.ViewCompat;
-import androidx.lifecycle.DefaultLifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.abdullghani.sheetflow.adapters.SheetAdapter;
 import com.abdullghani.sheetflow.callbacks.OnActionListener;
 import com.abdullghani.sheetflow.callbacks.OnMultiChoiceListener;
 import com.abdullghani.sheetflow.callbacks.OnStringClickListener;
 import com.abdullghani.sheetflow.callbacks.OnViewCreatedListener;
 import com.abdullghani.sheetflow.models.SheetItem;
-
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -87,53 +58,13 @@ public class SheetFlow {
         void onStateChanged(SheetFlow sheet, int newState);
     }
 
-    private final WeakReference<Context> contextRef;
-    private BottomSheetDialog dialog;
-
-    // --- Content & Views ---
-    private String title;
-    private String message;
-    private int iconRes = 0;
-    private int customLayoutRes = 0;
-    private OnViewCreatedListener onViewCreatedListener;
-    private Integer backgroundColor = null;
-    // --- Buttons ---
-    private String positiveBtnText;
-    private OnActionListener positiveListener;
-    private String negativeBtnText;
-    private OnActionListener negativeListener;
-
-    // --- List & Adapter ---
-    private final List<SheetItem> itemsList = new ArrayList<>();
-    private OnStringClickListener simpleItemClickListener;
-    private OnMultiChoiceListener multiChoiceListener;
-    private boolean isMultiSelect = false;
-
-    // --- Configurations & Styling ---
-    private int themeResId = 0;
-    private boolean isCancelable = true;
-    private boolean isDraggable = true;
-    private boolean isExpanded = false;
-    private boolean isNonModal = false;
-    private int peekHeightDp = 0;
-    private int cornerRadiusDp = 0;
-    private int maxWidthDp = 0;
-    private int nestedScrollChildId = 0;
-
-    // --- Window & Background ---
-    private boolean autoAdjustKeyboard = false;
-    private int dimColor = Color.parseColor("#80000000");
-    private boolean isBlurEnabled = false;
-    private int blurRadius = 15;
-
-    // --- State & Rotation Handling ---
-    private boolean autoHandleRotation = true;
-    private static final String KEY_IS_SHOWING = "sf_is_showing";
-    private OnStateChangeListener stateChangeListener;
-    private androidx.core.util.Consumer<Configuration> configChangeListener;
+    private final Context context;
+    private final SheetParams params;
+    private SheetController controller;
 
     private SheetFlow(Context context) {
-        this.contextRef = new WeakReference<>(context);
+        this.context = context;
+        this.params = new SheetParams();
     }
 
     /**
@@ -162,10 +93,9 @@ public class SheetFlow {
      */
     public static SheetFlow with(Context context, @StyleRes int themeResId) {
         SheetFlow flow = new SheetFlow(context);
-        flow.themeResId = themeResId;
+        flow.params.themeResId = themeResId;
         return flow;
     }
-    // --- Builder Setters ---
 
     /**
      * Sets a custom style theme for the BottomSheet dialog.
@@ -186,7 +116,7 @@ public class SheetFlow {
      * }</pre>
      */
     public SheetFlow setStyle(@StyleRes int themeResId) {
-        this.themeResId = themeResId;
+        params.themeResId = themeResId;
         return this;
     }
 
@@ -197,7 +127,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setTitle(String title) {
-        this.title = title;
+        params.title = title;
         return this;
     }
 
@@ -208,7 +138,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setMessage(String message) {
-        this.message = message;
+        params.message = message;
         return this;
     }
 
@@ -219,7 +149,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setIcon(@DrawableRes int iconRes) {
-        this.iconRes = iconRes;
+        params.iconRes = iconRes;
         return this;
     }
 
@@ -234,7 +164,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setView(@LayoutRes int layoutRes) {
-        this.customLayoutRes = layoutRes;
+        params.customLayoutRes = layoutRes;
         return this;
     }
 
@@ -261,7 +191,7 @@ public class SheetFlow {
      * }</pre>
      */
     public SheetFlow onViewCreated(OnViewCreatedListener listener) {
-        this.onViewCreatedListener = listener;
+        params.onViewCreatedListener = listener;
         return this;
     }
 
@@ -276,21 +206,21 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setItems(List<String> items, OnStringClickListener listener) {
-        this.itemsList.clear();
+        params.itemsList.clear();
         for (String item : items) {
-            this.itemsList.add(new SheetItem(item, 0));
+            params.itemsList.add(new SheetItem(item, 0));
         }
-        this.simpleItemClickListener = listener;
-        this.isMultiSelect = false;
+        params.simpleItemClickListener = listener;
+        params.isMultiSelect = false;
         return this;
     }
 
     /**
      * Appends an actionable item with an optional icon and runnable click listener to the sheet.
      *
-     * @param iconRes  The drawable resource ID for the item icon (use 0 for no icon).
-     * @param title    The text title of the item.
-     * @param action   The {@link Runnable} action to execute when the item is clicked.
+     * @param iconRes The drawable resource ID for the item icon (use 0 for no icon).
+     * @param title   The text title of the item.
+     * @param action  The {@link Runnable} action to execute when the item is clicked.
      * @return This {@link SheetFlow} instance for method chaining.
      *
      * <p><b>Example Usage:</b></p>
@@ -302,8 +232,8 @@ public class SheetFlow {
      * }</pre>
      */
     public SheetFlow addItem(@DrawableRes int iconRes, String title, Runnable action) {
-        this.itemsList.add(new SheetItem(title, iconRes, action));
-        this.isMultiSelect = false;
+        params.itemsList.add(new SheetItem(title, iconRes, action));
+        params.isMultiSelect = false;
         return this;
     }
 
@@ -318,12 +248,12 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setMultiChoiceItems(List<String> items, OnMultiChoiceListener listener) {
-        this.itemsList.clear();
+        params.itemsList.clear();
         for (String item : items) {
-            this.itemsList.add(new SheetItem(item, 0));
+            params.itemsList.add(new SheetItem(item, 0));
         }
-        this.multiChoiceListener = listener;
-        this.isMultiSelect = true;
+        params.multiChoiceListener = listener;
+        params.isMultiSelect = true;
         return this;
     }
 
@@ -335,8 +265,8 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setPositiveButton(String text, OnActionListener listener) {
-        this.positiveBtnText = text;
-        this.positiveListener = listener;
+        params.positiveBtnText = text;
+        params.positiveListener = listener;
         return this;
     }
 
@@ -348,8 +278,8 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setNegativeButton(String text, OnActionListener listener) {
-        this.negativeBtnText = text;
-        this.negativeListener = listener;
+        params.negativeBtnText = text;
+        params.negativeListener = listener;
         return this;
     }
 
@@ -360,7 +290,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setCancelable(boolean cancelable) {
-        this.isCancelable = cancelable;
+        params.isCancelable = cancelable;
         return this;
     }
 
@@ -371,7 +301,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setDraggable(boolean draggable) {
-        this.isDraggable = draggable;
+        params.isDraggable = draggable;
         return this;
     }
 
@@ -382,7 +312,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setExpanded(boolean expanded) {
-        this.isExpanded = expanded;
+        params.isExpanded = expanded;
         return this;
     }
 
@@ -396,7 +326,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setNonModal(boolean isNonModal) {
-        this.isNonModal = isNonModal;
+        params.isNonModal = isNonModal;
         return this;
     }
 
@@ -407,7 +337,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setPeekHeightDp(int peekHeightDp) {
-        this.peekHeightDp = peekHeightDp;
+        params.peekHeightDp = peekHeightDp;
         return this;
     }
 
@@ -418,7 +348,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setCornerRadius(int radiusDp) {
-        this.cornerRadiusDp = radiusDp;
+        params.cornerRadiusDp = radiusDp;
         return this;
     }
 
@@ -432,7 +362,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setMaxWidthDp(int widthDp) {
-        this.maxWidthDp = widthDp;
+        params.maxWidthDp = widthDp;
         return this;
     }
 
@@ -443,7 +373,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setNestedScrollChild(@IdRes int resId) {
-        this.nestedScrollChildId = resId;
+        params.nestedScrollChildId = resId;
         return this;
     }
 
@@ -454,7 +384,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow autoAdjustForKeyboard(boolean adjust) {
-        this.autoAdjustKeyboard = adjust;
+        params.autoAdjustKeyboard = adjust;
         return this;
     }
 
@@ -465,7 +395,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setDimColor(int color) {
-        this.dimColor = color;
+        params.dimColor = color;
         return this;
     }
 
@@ -484,8 +414,8 @@ public class SheetFlow {
      * }</pre>
      */
     public SheetFlow setBlurBackground(boolean enable, int radius) {
-        this.isBlurEnabled = enable;
-        this.blurRadius = radius;
+        params.isBlurEnabled = enable;
+        params.blurRadius = radius;
         return this;
     }
 
@@ -496,7 +426,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setOnStateChangeListener(OnStateChangeListener listener) {
-        this.stateChangeListener = listener;
+        params.stateChangeListener = listener;
         return this;
     }
 
@@ -507,7 +437,7 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setAutoHandleRotation(boolean enable) {
-        this.autoHandleRotation = enable;
+        params.autoHandleRotation = enable;
         return this;
     }
 
@@ -531,7 +461,7 @@ public class SheetFlow {
      * }</pre>
      */
     public SheetFlow retainStateOnRotation(boolean retain, Bundle savedInstanceState) {
-        if (retain && savedInstanceState != null && savedInstanceState.getBoolean(KEY_IS_SHOWING, false)) {
+        if (retain && savedInstanceState != null && savedInstanceState.getBoolean(SheetParams.KEY_IS_SHOWING, false)) {
             show();
         }
         return this;
@@ -544,7 +474,7 @@ public class SheetFlow {
      */
     public void saveInstanceState(Bundle outState) {
         if (outState != null) {
-            outState.putBoolean(KEY_IS_SHOWING, isShowing());
+            outState.putBoolean(SheetParams.KEY_IS_SHOWING, isShowing());
         }
     }
 
@@ -558,30 +488,100 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow setBackgroundColor(@ColorInt int color) {
-        this.backgroundColor = color;
-
-        // إذا كان الـ Dialog معروضاً بالفعل، قم بتطبيق اللون فوراً
-        if (dialog != null && dialog.isShowing()) {
-            applyBackgroundColor();
-        }
+        params.backgroundColor = color;
         return this;
     }
 
-    private void applyBackgroundColor() {
-        if (dialog == null || backgroundColor == null) return;
-
-        View bottomSheetInternal = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-        if (bottomSheetInternal != null) {
-            // نستخدم setBackgroundTintList للحفاظ على الـ ShapeDrawable (الحواف الدائرية)
-            bottomSheetInternal.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
-
-            // ملاحظة: إذا كنت تعتمد على Drawable مخصص بالكامل في الكود الخاص بك
-            // ولا تستخدم MaterialShapeDrawable، يمكنك استبدال السطر السابق بـ:
-            // bottomSheetInternal.setBackgroundColor(backgroundColor);
-        }
+    /**
+     * Sets the text color for the title.
+     *
+     * @param color The ARGB color integer (e.g., Color.RED or ContextCompat.getColor(context, R.color.my_color)).
+     * @return This {@link SheetFlow} instance for method chaining.
+     */
+    public SheetFlow setTitleColor(@ColorInt int color) {
+        params.titleColor = color;
+        return this;
     }
 
-    // --- Core Methods ---
+    /**
+     * Sets the custom font family for the title using a font resource ID.
+     *
+     * @param fontResId The font resource identifier (e.g., R.font.arial or R.font.cairo_bold).
+     * @return This {@link SheetFlow} instance for method chaining.
+     */
+    public SheetFlow setTitleFont(@FontRes int fontResId) {
+        params.titleFontResId = fontResId;
+        return this;
+    }
+
+    /**
+     * Sets the text color for the message.
+     *
+     * @param color The ARGB color integer.
+     * @return This {@link SheetFlow} instance for method chaining.
+     */
+    public SheetFlow setMessageColor(@ColorInt int color) {
+        params.messageColor = color;
+        return this;
+    }
+
+    /**
+     * Sets the custom font family for the message using a font resource ID.
+     *
+     * @param fontResId The font resource identifier (e.g., R.font.arial).
+     * @return This {@link SheetFlow} instance for method chaining.
+     */
+    public SheetFlow setMessageFont(@FontRes int fontResId) {
+        params.messageFontResId = fontResId;
+        return this;
+    }
+
+    /**
+     * Sets the custom font family for the list items using a font resource ID.
+     *
+     * @param fontResId The font resource identifier (e.g., R.font.arial).
+     * @return This {@link SheetFlow} instance for method chaining.
+     */
+    public SheetFlow setItemsFont(@FontRes int fontResId) {
+        params.itemsFontResId = fontResId;
+        return this;
+    }
+
+    /**
+     * Sets whether the top drag handle bar is visible.
+     *
+     * @param visible {@code true} to show the drag handle bar; {@code false} to hide it.
+     * @return This {@link SheetFlow} instance for method chaining.
+     */
+    public SheetFlow setDragHandleVisible(boolean visible) {
+        params.isDragHandleVisible = visible;
+        return this;
+    }
+
+    /**
+     * Sets a custom color for the top drag handle bar.
+     *
+     * @param color The ARGB color integer (e.g., Color.GRAY or ContextCompat.getColor(context, R.color.my_color)).
+     * @return This {@link SheetFlow} instance for method chaining.
+     */
+    public SheetFlow setDragHandleColor(@ColorInt int color) {
+        params.dragHandleColor = color;
+        return this;
+    }
+
+    /**
+     * Sets a custom animation style resource for the BottomSheet dialog entrance and exit.
+     *
+     * @param animationStyleResId A style resource ID containing windowEnterAnimation and windowExitAnimation
+     *                            (e.g., R.style.DialogAnimation or R.anim.custom_anim via style).
+     * @return This {@link SheetFlow} instance for method chaining.
+     */
+    public SheetFlow setAnimation(@StyleRes int animationStyleResId) {
+        params.windowAnimationResId = animationStyleResId;
+        return this;
+    }
+
+    // ==================== Core Methods ====================
 
     /**
      * Builds and displays the BottomSheet dialog on screen.
@@ -593,44 +593,18 @@ public class SheetFlow {
      * @return This {@link SheetFlow} instance for method chaining.
      */
     public SheetFlow show() {
-        Context context = contextRef.get();
-        if (context == null) return this;
-
-        dialog = (themeResId != 0)
-                ? new BottomSheetDialog(context, themeResId)
-                : new BottomSheetDialog(context);
-
-        dialog.setCancelable(isCancelable);
-
-        View root = LayoutInflater.from(context).inflate(R.layout.sf_layout_bottom_sheet, null);
-
-        setupHeader(root);
-        setupMessage(root);
-        setupContent(context, root);
-        setupButtons(root);
-
-        dialog.setContentView(root);
-
-        configureWindow();
-        configureBehavior(context, root);
-
-        if (autoHandleRotation) {
-            attachRotationListener(context);
+        if (controller == null) {
+            controller = new SheetController(context, params, this);
         }
-
-        dialog.show();
-        applyOrientationAdjustments(context);
-        applyBackgroundColor(); // أضف هذا السطر هنا
-        return this;
+        return controller.show();
     }
 
     /**
      * Dismisses the active BottomSheet dialog and detaches registered system listeners.
      */
     public void dismiss() {
-        detachRotationListener();
-        if (dialog != null && dialog.isShowing()) {
-            dialog.dismiss();
+        if (controller != null) {
+            controller.dismiss();
         }
     }
 
@@ -640,7 +614,7 @@ public class SheetFlow {
      * @return {@code true} if the dialog is showing; {@code false} otherwise.
      */
     public boolean isShowing() {
-        return dialog != null && dialog.isShowing();
+        return controller != null && controller.isShowing();
     }
 
     /**
@@ -649,346 +623,72 @@ public class SheetFlow {
      * @return The {@link BottomSheetBehavior} associated with the dialog sheet, or {@code null} if the dialog is not created or visible.
      */
     public BottomSheetBehavior<View> getBehavior() {
-        if (dialog != null) {
-            View bottomSheetInternal = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            if (bottomSheetInternal != null) {
-                return BottomSheetBehavior.from(bottomSheetInternal);
-            }
-        }
-        return null;
+        return controller != null ? controller.getBehavior() : null;
     }
 
     /**
      * Programmatically expands the sheet to its full height state ({@link BottomSheetBehavior#STATE_EXPANDED}).
      */
     public void expand() {
-        BottomSheetBehavior<View> behavior = getBehavior();
-        if (behavior != null) {
-            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        }
+        if (controller != null) controller.expand();
     }
 
     /**
      * Programmatically collapses the sheet to its peek height state ({@link BottomSheetBehavior#STATE_COLLAPSED}).
      */
     public void collapse() {
-        BottomSheetBehavior<View> behavior = getBehavior();
-        if (behavior != null) {
-            behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        }
+        if (controller != null) controller.collapse();
     }
 
     /**
      * Toggles the current sheet state between expanded and collapsed.
      */
     public void toggle() {
-        BottomSheetBehavior<View> behavior = getBehavior();
-        if (behavior != null) {
-            int targetState = (behavior.getState() == BottomSheetBehavior.STATE_EXPANDED)
-                    ? BottomSheetBehavior.STATE_COLLAPSED
-                    : BottomSheetBehavior.STATE_EXPANDED;
-            behavior.setState(targetState);
-        }
+        if (controller != null) controller.toggle();
     }
 
 
-    private void attachRotationListener(Context context) {
-        if (context instanceof androidx.activity.ComponentActivity) {
-            androidx.activity.ComponentActivity activity = (androidx.activity.ComponentActivity) context;
-
-            configChangeListener = newConfig -> applyOrientationAdjustments(context);
-            activity.addOnConfigurationChangedListener(configChangeListener);
-
-            activity.getLifecycle().addObserver(new DefaultLifecycleObserver() {
-                @Override
-                public void onDestroy(@NonNull LifecycleOwner owner) {
-                    dismiss();
-                }
-            });
-        }
+    /**
+     * Sets the tint color for the header icon.
+     * <p>
+     * This color will be applied as an image tint to the icon.
+     * </p>
+     *
+     * @param color The ARGB color integer (e.g., {@code ContextCompat.getColor(context, R.color.my_color)} or {@code Color.RED}).
+     * @return This {@link SheetFlow} instance for method chaining.
+     *
+     * <p><b>Example Usage:</b></p>
+     * <pre>{@code
+     * SheetFlow.with(context)
+     *         .setIcon(R.drawable.ic_info)
+     *         .setIconColor(ContextCompat.getColor(context, R.color.primary))
+     *         .setTitle("Information")
+     *         .show();
+     * }</pre>
+     */
+    public SheetFlow setIconColor(@ColorInt int color) {
+        params.iconColor = color;
+        return this;
     }
 
-    private void detachRotationListener() {
-        Context context = contextRef.get();
-        if (context instanceof androidx.activity.ComponentActivity && configChangeListener != null) {
-            ((androidx.activity.ComponentActivity) context).removeOnConfigurationChangedListener(configChangeListener);
-            configChangeListener = null;
-        }
-    }
 
-    private void applyOrientationAdjustments(Context context) {
-        if (dialog == null || !dialog.isShowing()) return;
-
-        View bottomSheetInternal = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-        if (bottomSheetInternal == null) return;
-
-        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheetInternal);
-        boolean isLandscape = context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-
-        ViewGroup.LayoutParams layoutParams = bottomSheetInternal.getLayoutParams();
-
-        // اجعل الارتفاع دائما بحسب المحتوى (WRAP_CONTENT)
-        layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        bottomSheetInternal.setLayoutParams(layoutParams);
-
-        // تفعيل التكيّف التلقائي مع المحتوى
-        behavior.setFitToContents(true);
-
-        if (isLandscape) {
-            // في الوضع الأفقي: حدد أقصى ارتفاع متاح للشاشة لمنع الاقتصاص إذا كانت القائمة كبيرة
-            int displayHeight = context.getResources().getDisplayMetrics().heightPixels;
-            behavior.setMaxHeight(displayHeight);
-
-            behavior.setSkipCollapsed(true);
-            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        } else {
-            // في الوضع الرأسي: إعادة إلغاء أقصى ارتفاع ليأخذ راحته
-            behavior.setMaxHeight(Integer.MAX_VALUE);
-
-            if (peekHeightDp > 0) {
-                float density = context.getResources().getDisplayMetrics().density;
-                behavior.setFitToContents(false); // السماح بالـ Collapsed state إذا تم تحديد PeekHeight
-                behavior.setPeekHeight((int) (peekHeightDp * density));
-                behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            } else if (isExpanded) {
-                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            }
-        }
-    }
-
-    private void setupHeader(View root) {
-        LinearLayout headerLayout = root.findViewById(R.id.sf_header_layout);
-        ImageView imgIcon = root.findViewById(R.id.sf_img_icon);
-        TextView tvTitle = root.findViewById(R.id.sf_tv_title);
-
-        if (headerLayout == null) return;
-
-        boolean hasTitle = title != null && !title.trim().isEmpty();
-        boolean hasIcon = iconRes != 0;
-
-        if (hasTitle || hasIcon) {
-            headerLayout.setVisibility(View.VISIBLE);
-
-            if (tvTitle != null) {
-                tvTitle.setText(hasTitle ? title : "");
-                tvTitle.setVisibility(hasTitle ? View.VISIBLE : View.GONE);
-
-                if (themeResId != 0) {
-                    Context context = root.getContext();
-                    TypedArray a = context.obtainStyledAttributes(themeResId, new int[]{R.attr.sheetTitleStyle});
-                    int titleStyleRes = a.getResourceId(0, 0);
-                    a.recycle();
-
-                    if (titleStyleRes != 0) {
-                        androidx.core.widget.TextViewCompat.setTextAppearance(tvTitle, titleStyleRes);
-                    }
-                } else {
-                    tvTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-                    tvTitle.setTypeface(null, Typeface.BOLD);
-                    tvTitle.setTextColor(Color.BLACK);
-                }
-            }
-
-            if (imgIcon != null) {
-                if (hasIcon) imgIcon.setImageResource(iconRes);
-                imgIcon.setVisibility(hasIcon ? View.VISIBLE : View.GONE);
-            }
-        } else {
-            headerLayout.setVisibility(View.GONE);
-        }
-    }
-
-    private void setupMessage(View root) {
-        TextView tvMessage = root.findViewById(R.id.sf_tv_message);
-        if (tvMessage == null) return;
-
-        boolean hasMessage = message != null && !message.trim().isEmpty();
-        if (hasMessage) {
-            tvMessage.setText(message);
-            tvMessage.setVisibility(View.VISIBLE);
-
-            if (themeResId != 0) {
-                Context context = root.getContext();
-                TypedArray a = context.obtainStyledAttributes(themeResId, new int[]{R.attr.sheetMessageStyle});
-                int messageStyleRes = a.getResourceId(0, 0);
-                a.recycle();
-
-                if (messageStyleRes != 0) {
-                    androidx.core.widget.TextViewCompat.setTextAppearance(tvMessage, messageStyleRes);
-                }
-            } else {
-                tvMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                tvMessage.setTypeface(null, Typeface.NORMAL);
-                tvMessage.setTextColor(Color.parseColor("#757575"));
-            }
-        } else {
-            tvMessage.setVisibility(View.GONE);
-        }
-    }
-
-    private void setupContent(Context context, View root) {
-        FrameLayout customContainer = root.findViewById(R.id.sf_custom_container);
-        RecyclerView recyclerView = root.findViewById(R.id.sf_recycler_view);
-
-        if (customLayoutRes != 0 && customContainer != null) {
-            customContainer.setVisibility(View.VISIBLE);
-            if (recyclerView != null) recyclerView.setVisibility(View.GONE);
-
-            View customView = LayoutInflater.from(context).inflate(customLayoutRes, customContainer, false);
-            customContainer.addView(customView);
-
-            if (onViewCreatedListener != null) {
-                onViewCreatedListener.onViewCreated(this, customView);
-            }
-        } else if (!itemsList.isEmpty() && recyclerView != null) {
-            recyclerView.setVisibility(View.VISIBLE);
-            if (customContainer != null) customContainer.setVisibility(View.GONE);
-
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            SheetAdapter adapter = new SheetAdapter(itemsList, isMultiSelect);
-            adapter.setOnItemClickListener((position, item) -> {
-                if (item.getAction() != null) {
-                    item.getAction().run();
-                } else if (simpleItemClickListener != null) {
-                    simpleItemClickListener.onItemClick(position, item.getTitle());
-                }
-                dismiss();
-            });
-
-            if (multiChoiceListener != null) {
-                adapter.setOnMultiChoiceListener(multiChoiceListener);
-            }
-
-            recyclerView.setAdapter(adapter);
-        }
-    }
-
-    private void setupButtons(View root) {
-        LinearLayout buttonsLayout = root.findViewById(R.id.sf_buttons_layout);
-        Button btnPositive = root.findViewById(R.id.sf_btn_positive);
-        Button btnNegative = root.findViewById(R.id.sf_btn_negative);
-
-        if (buttonsLayout == null) return;
-
-        if (positiveBtnText != null || negativeBtnText != null) {
-            buttonsLayout.setVisibility(View.VISIBLE);
-
-            if (btnPositive != null) {
-                if (positiveBtnText != null) {
-                    btnPositive.setText(positiveBtnText);
-                    btnPositive.setVisibility(View.VISIBLE);
-                    btnPositive.setOnClickListener(v -> {
-                        if (positiveListener != null) positiveListener.onAction(this);
-                    });
-                } else {
-                    btnPositive.setVisibility(View.GONE);
-                }
-            }
-
-            if (btnNegative != null) {
-                if (negativeBtnText != null) {
-                    btnNegative.setText(negativeBtnText);
-                    btnNegative.setVisibility(View.VISIBLE);
-                    btnNegative.setOnClickListener(v -> {
-                        if (negativeListener != null) negativeListener.onAction(this);
-                    });
-                } else {
-                    btnNegative.setVisibility(View.GONE);
-                }
-            }
-        } else {
-            buttonsLayout.setVisibility(View.GONE);
-        }
-    }
-
-    private void configureWindow() {
-        if (dialog.getWindow() == null) return;
-
-        if (isNonModal) {
-            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-        } else {
-            dialog.getWindow().setDimAmount(0.5f);
-
-            if (isBlurEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-                WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
-                try {
-                    Field field = WindowManager.LayoutParams.class.getField("blurBehindRadius");
-                    field.set(params, blurRadius);
-                    dialog.getWindow().setAttributes(params);
-                } catch (Exception ignored) {
-                }
-            }
-        }
-
-        if (autoAdjustKeyboard) {
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void configureBehavior(Context context, View root) {
-        dialog.setOnShowListener(d -> {
-            BottomSheetDialog bsd = (BottomSheetDialog) d;
-            View bottomSheetInternal = bsd.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-
-            if (bottomSheetInternal == null) return;
-
-            BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheetInternal);
-            behavior.setDraggable(isDraggable);
-
-            if (isNonModal) {
-                View touchOutside = bsd.findViewById(com.google.android.material.R.id.touch_outside);
-                if (touchOutside != null) {
-                    touchOutside.setOnTouchListener((v, event) -> {
-                        if (context instanceof Activity) {
-                            return ((Activity) context).dispatchTouchEvent(event);
-                        }
-                        return false;
-                    });
-                }
-            }
-
-            float density = context.getResources().getDisplayMetrics().density;
-
-            if (maxWidthDp > 0) {
-                ViewGroup.LayoutParams layoutParams = bottomSheetInternal.getLayoutParams();
-                layoutParams.width = (int) (maxWidthDp * density);
-                bottomSheetInternal.setLayoutParams(layoutParams);
-            }
-
-            if (nestedScrollChildId != 0) {
-                View nestedChild = root.findViewById(nestedScrollChildId);
-                if (nestedChild != null) {
-                    ViewCompat.setNestedScrollingEnabled(nestedChild, true);
-                }
-            }
-
-            if (cornerRadiusDp > 0) {
-                bottomSheetInternal.setBackgroundColor(Color.TRANSPARENT);
-                GradientDrawable drawable = new GradientDrawable();
-                drawable.setColor(Color.WHITE);
-                float px = cornerRadiusDp * density;
-                drawable.setCornerRadii(new float[]{px, px, px, px, 0, 0, 0, 0});
-                ViewCompat.setBackground(bottomSheetInternal, drawable);
-            }
-
-            // تطبيق قياسات الاتجاه الأولي (Landscape / Portrait)
-            applyOrientationAdjustments(context);
-
-            behavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-                @Override
-                public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                    if (stateChangeListener != null) {
-                        stateChangeListener.onStateChanged(SheetFlow.this, newState);
-                    }
-                }
-
-                @Override
-                public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                }
-            });
-        });
+    /**
+     * Sets the tint color for all item icons in the list.
+     *
+     * @param color The ARGB color integer (e.g., {@code ContextCompat.getColor(context, R.color.primary)}).
+     * @return This {@link SheetFlow} instance for method chaining.
+     *
+     * <p><b>Example Usage:</b></p>
+     * <pre>{@code
+     * SheetFlow.with(context)
+     *         .addItem(R.drawable.ic_edit, "Edit", () -> {})
+     *         .addItem(R.drawable.ic_delete, "Delete", () -> {})
+     *         .setItemsIconColor(ContextCompat.getColor(context, R.color.red))
+     *         .show();
+     * }</pre>
+     */
+    public SheetFlow setItemsIconColor(@ColorInt int color) {
+        params.itemsIconColor = color;
+        return this;
     }
 }

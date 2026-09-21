@@ -1,6 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
+    id 'maven-publish' // إضافة الإضافة للتعرف على أمر publishing
 }
+
+// تحديد المجموعة ورقم الإصدار للمكتبة
+group = 'com.github.abdullghani'
+version = '2.0.0'
 
 android {
     namespace 'com.abdullghani.sheetflow'
@@ -18,6 +23,26 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 
+    // إعداد حزمة AAR/Sources للنشر
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+}
+
+// إعدادات النشر لـ Maven / JitPack
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.abdullghani'
+                artifactId = 'sheetflow'
+                version = '2.0.0'
+            }
+        }
+    }
 }
 
 dependencies {
