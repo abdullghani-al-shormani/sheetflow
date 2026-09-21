@@ -452,6 +452,49 @@ SheetFlow.with(this)
     .show()
 ```
 
+
+### Colors & Fonts
+**12. 🎨 Styling & Customization**
+SheetFlow gives you fine-grained control over the visual appearance of the sheet.
+
+**Java**
+```java
+SheetFlow.with(this)
+        .setTitle("Styled Sheet")
+        .setMessage("This sheet uses custom colors and fonts.")
+        .setTitleColor(ContextCompat.getColor(this, R.color.primary))
+        .setMessageColor(ContextCompat.getColor(this, R.color.secondary_text))
+        .setTitleFont(R.font.cairo_bold)
+        .setMessageFont(R.font.cairo_regular)
+        .setItemsIconColor(ContextCompat.getColor(this, R.color.accent))
+        .setDragHandleColor(ContextCompat.getColor(this, R.color.gray))
+        .setDragHandleVisible(true)
+        .setBackgroundColor(ContextCompat.getColor(this, R.color.white))
+        .setCornerRadius(20)
+        .addItem(R.drawable.ic_edit, "Edit", () -> {})
+        .addItem(R.drawable.ic_delete, "Delete", () -> {})
+        .show();
+```
+
+**Kotlin**
+```kotlin
+SheetFlow.with(this)
+    .setTitle("Styled Sheet")
+    .setMessage("This sheet uses custom colors and fonts.")
+    .setTitleColor(ContextCompat.getColor(this, R.color.primary))
+    .setMessageColor(ContextCompat.getColor(this, R.color.secondary_text))
+    .setTitleFont(R.font.cairo_bold)
+    .setMessageFont(R.font.cairo_regular)
+    .setItemsIconColor(ContextCompat.getColor(this, R.color.accent))
+    .setDragHandleColor(ContextCompat.getColor(this, R.color.gray))
+    .setDragHandleVisible(true)
+    .setBackgroundColor(ContextCompat.getColor(this, R.color.white))
+    .setCornerRadius(20)
+    .addItem(R.drawable.ic_edit, "Edit") { }
+    .addItem(R.drawable.ic_delete, "Delete") { }
+    .show()
+```
+
 **📄 License**
 Copyright 2026 E.Abdullghani Al-Shormani
 
