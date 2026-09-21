@@ -30,13 +30,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url '[https://jitpack.io](https://jitpack.io)' }
+        maven { url 'https://jitpack.io' }
     }
 }
+```
 Then, add the dependency to your module build.gradle file:
 
-```
-then Add this dependencies in gradle (Module:app) :
 ```groovy
 dependencies {
     implementation 'com.github.abdullghani-al-shormani:sheetflow:1.0.0'
