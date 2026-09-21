@@ -420,6 +420,38 @@ SheetFlow.with(this, R.style.MyCustomAppSheetTheme)
     .show()
 ```
 
+
+**11. Custom Animations**
+To apply a custom enter/exit animation to your bottom sheet, define an animation style in your res/values/styles.xml first:
+```xml
+<!-- res/values/styles.xml -->
+<resources>
+    <style name="SheetFlowAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_bottom</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_bottom</item>
+    </style>
+</resources>
+```
+Then pass the style resource to setAnimation():
+
+**Java**
+```java
+SheetFlow.with(context)
+        .setTitle("Custom Animation")
+        .setMessage("This sheet uses a custom entrance and exit transition.")
+        .setAnimation(R.style.SheetFlowAnimation)
+        .show();
+```
+
+**Kotlin**
+```kotlin
+SheetFlow.with(this)
+    .setTitle("Custom Animation")
+    .setMessage("This sheet uses a custom entrance and exit transition.")
+    .setAnimation(R.style.SheetFlowAnimation)
+    .show()
+```
+
 **📄 License**
 Copyright 2026 E.Abdullghani Al-Shormani
 
